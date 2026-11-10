@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Text-to-SQL CoE</title>
+  <meta name="description" content="Text-to-SQL Center of Excellence: nine techniques, how to choose between them, how we evaluate them, and the datasets and tools behind them.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f46e5'/><text x='16' y='21' font-family='monospace' font-size='13' font-weight='700' fill='white' text-anchor='middle'>SQL</text></svg>">
+  <script>
+    try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#top"><span class="brand-mark">SQL</span><span>Text-to-SQL <b>CoE</b></span></a>
+      <nav class="nav" id="nav">
+        <a href="#why">Why it's hard</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#techniques">Techniques</a>
+        <a href="#choose">Choose</a>
+        <a href="#evaluate">Evaluate</a>
+        <a href="#datasets">Datasets</a>
+        <a href="#resources">Resources</a>
+        <a href="#repo">Repo</a>
+      </nav>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">
+          <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Center of Excellence · November 2026</p>
+          <h1>Ask data questions in <span class="grad">plain English</span>.<br>Get answers you can trust.</h1>
+          <p class="lead">Modern LLMs write good SQL. On real company data they still get things wrong, because they don't know what our tables, columns and metrics mean. This CoE compares nine techniques on one shared dataset and one shared test harness, so we choose with numbers, not vibes.</p>
+          <div class="hero-cta">
+            <a class="btn primary" href="#techniques">Explore the 9 techniques</a>
+            <a class="btn ghost" href="#choose">Which one should I use?</a>
+          </div>
+          <ul class="pillars">
+            <li><b>1 repo</b> per technique, runnable end to end</li>
+            <li><b>1 harness</b> and golden question set for everyone</li>
+            <li><b>1 playbook</b> for teams starting new work</li>
+            <li><b>Reusable</b> metadata, semantic models and examples</li>
+          </ul>
+        </div>
+        <div class="demo card" aria-label="Example question and generated SQL">
+          <div class="demo-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="demo-title">ask-the-warehouse</span></div>
+          <div class="demo-body">
+            <div class="q"><span class="who">You</span><span id="typed"></span><span class="caret"></span></div>
+            <pre class="sql" id="demoSql"></pre>
+            <div class="demo-foot" id="demoFoot"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section id="why" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Why it's harder than it looks</p>
+          <h2>Great on benchmarks, shaky on our warehouse</h2>
+          <p>Models score well on tidy academic benchmarks like Spider, then drop sharply on messy, realistic ones like BIRD and Spider 2.0. Our warehouse looks like the messy kind. These are the usual troublemakers.</p>
+        </div>
+        <div class="grid challenges" id="challenges"></div>
+        <div class="callout">
+          <span class="callout-icon">💡</span>
+          <div><b>The big insight:</b> most mistakes are <em>context</em> mistakes, not SQL-writing mistakes. Most of the work is feeding the model the right context, and that context (catalogs, models, query logs) is exactly what data engineers already look after.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PIPELINE -->
+    <section id="pipeline" class="section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">The big picture</p>
+          <h2>Not rivals: layers in one pipeline</h2>
+          <p>Most of the accuracy is won in the context layer, before the model writes a single line of SQL. Click any layer to jump to its technique.</p>
+        </div>
+        <div class="pipeline">
+          <div class="pl-step pl-input">
+            <span class="pl-num">1</span>
+            <div><b>Business question</b><small>in plain words</small></div>
+          </div>
+          <div class="pl-arrow" aria-hidden="true"></div>
+          <div class="pl-context">
+            <div class="pl-context-label">Context layer · where data engineers add the most value</div>
+            <div class="pl-chips">
+              <button class="pl-chip" data-t="T2"><b>T2</b> Metadata<small>descriptions, values, keys</small></button>
+              <button class="pl-chip" data-t="T3"><b>T3</b> Semantic<small>governed metrics, joins</small></button>
+              <button class="pl-chip" data-t="T4"><b>T4</b> Examples<small>verified question → SQL</small></button>
+              <button class="pl-chip" data-t="T5"><b>T5</b> Linking<small>finds relevant tables</small></button>
+              <button class="pl-chip" data-t="T8"><b>T8</b> Ontology<small>concepts, certified terms</small></button>
+            </div>
+          </div>
+          <div class="pl-arrow" aria-hidden="true"></div>
+          <div class="pl-row">
+            <button class="pl-step pl-llm" data-t="T1">
+              <span class="pl-num">2</span>
+              <div><b>LLM writes SQL</b><small>T1 frontier model or T7 fine-tuned</small></div>
+            </button>
+            <div class="pl-arrow h" aria-hidden="true"></div>
+            <button class="pl-step pl-validate" data-t="T6">
+              <span class="pl-num">3</span>
+              <div><b>Validate &amp; repair</b><small>T6 · dry run, check values, retry</small></div>
+              <span class="pl-loop" title="fails: repair">↺</span>
+            </button>
+            <div class="pl-arrow h" aria-hidden="true"></div>
+            <div class="pl-step pl-out">
+              <span class="pl-num">4</span>
+              <div><b>Answer + its SQL</b><small>always shown together</small></div>
+            </div>
+          </div>
+          <div class="pl-guard">🛡️ <b>Guardrails on every path:</b> read-only access · row/column security · cost limits · PII masking · audit log</div>
+          <p class="pl-note">Platform tools like Databricks Genie or Snowflake Cortex Analyst (<a href="#t-T9">T9</a>) bundle this whole pipeline, but they still run on the metadata and examples we feed them.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNIQUES -->
+    <section id="techniques" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Meet the techniques</p>
+          <h2>Nine techniques, nine hands-on repos</h2>
+          <p>For each: what it is, when it shines, where it falls short, and where to learn more.</p>
+        </div>
+        <div class="filters" id="techFilters" role="tablist">
+          <button class="chip active" data-f="all">All</button>
+          <button class="chip" data-f="context">Context layer</button>
+          <button class="chip" data-f="generation">Generation</button>
+          <button class="chip" data-f="validation">Validation</button>
+          <button class="chip" data-f="platform">Platform</button>
+        </div>
+        <div class="grid techs" id="techGrid"></div>
+        <div class="callout subtle">
+          <span class="callout-icon">🛡️</span>
+          <div><b>Shared by everyone: guardrails.</b> Every repo uses the same safety layer: read-only credentials, row and column security passed through, cost and row limits, PII masking, and an audit log of every question, SQL and result.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHOOSE -->
+    <section id="choose" class="section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">So… which one should I use?</p>
+          <h2>Usually a combo. Start here.</h2>
+          <p>Start with metadata + examples + schema linking (T2 + T4 + T5) for almost everything, then add what your use case needs. Answer four questions, in order, to pick your starting stack.</p>
+        </div>
+        <div class="chooser">
+          <div class="wizard card" id="wizard"></div>
+          <div class="usecases">
+            <div class="usecase-head">
+              <h3>Quick lookup by use case</h3>
+              <input type="search" id="ucSearch" placeholder="Filter use cases…" aria-label="Filter use cases">
+            </div>
+            <div class="table-wrap">
+              <table class="tbl" id="ucTable">
+                <thead><tr><th>Use case</th><th>Go-to</th><th>Add-ons</th><th>Why</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="callout-icon">📏</span>
+          <div><b>Rule of thumb:</b> the more a wrong number would hurt, the more the answer should go through governed assets (T3 or a certified T8). The more open-ended the question, the more retrieval (T4, T5) and self-repair (T6) matter. Very high volume or strict latency? That's when T7 fine-tuning earns its keep.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVALUATE -->
+    <section id="evaluate" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">How we'll know what actually works</p>
+          <h2>Same harness, same questions, every technique</h2>
+          <p>No technique wins on a cool demo. Every repo is scored on the same question sets with the same metrics.</p>
+        </div>
+        <div class="eval-grid">
+          <div>
+            <h3 class="sub">The question sets</h3>
+            <div class="stack" id="qsets"></div>
+          </div>
+          <div>
+            <h3 class="sub">What we measure</h3>
+            <div class="metrics" id="metrics"></div>
+          </div>
+        </div>
+        <h3 class="sub center">It runs in CI</h3>
+        <p class="center muted">Change metadata, an example or a prompt, and the golden set re-runs automatically, so regressions are caught before anyone sees a wrong number.</p>
+        <div class="ci">
+          <div class="ci-step"><span>✏️</span><b>Change something</b><small>metadata, example, prompt</small></div>
+          <div class="ci-arrow"></div>
+          <div class="ci-step"><span>⚙️</span><b>CI runs golden set</b><small>same questions every time</small></div>
+          <div class="ci-arrow"></div>
+          <div class="ci-step"><span>📊</span><b>Compare scores</b><small>vs. the last good run</small></div>
+          <div class="ci-arrow"></div>
+          <div class="ci-step ok"><span>🚀</span><b>Ship it</b><small>no regression</small></div>
+          <div class="ci-back">↩ got worse: fix and try again</div>
+        </div>
+        <p class="center muted small">For explanations and clarifying questions, an LLM-as-judge (for example MLflow evaluation) helps on top of the execution checks.</p>
+      </div>
+    </section>
+
+    <!-- DATASETS -->
+    <section id="datasets" class="section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Data</p>
+          <h2>Benchmarks &amp; sample warehouses</h2>
+          <p>Public benchmarks let us compare with the outside world; sample warehouses give every technique repo the same realistic playground.</p>
+        </div>
+        <div class="filters" id="dsFilters">
+          <button class="chip active" data-f="all">All</button>
+          <button class="chip" data-f="benchmark">Benchmarks</button>
+          <button class="chip" data-f="warehouse">Sample warehouses</button>
+          <button class="chip" data-f="conversational">Conversational</button>
+        </div>
+        <div class="grid links" id="dsGrid"></div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section id="resources" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Toolbox</p>
+          <h2>Tools, platforms &amp; papers</h2>
+          <p>Starting points for each technique repo. Filter by technique to see what's relevant.</p>
+        </div>
+        <div class="filters" id="resFilters"></div>
+        <div class="grid links" id="resGrid"></div>
+      </div>
+    </section>
+
+    <!-- REPO -->
+    <section id="repo" class="section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">What the repo looks like</p>
+          <h2>One monorepo, apples to apples</h2>
+          <p>All technique repos share the same data, harness and guardrails. Each technique folder has a README (the idea, when to use it, the catch), a runnable notebook or app, its config, and its latest golden-set scores.</p>
+        </div>
+        <div class="repo-grid">
+          <div class="tree card" id="tree"></div>
+          <div>
+            <h3 class="sub">Things that could go wrong (and what we do about them)</h3>
+            <div class="risks" id="risks"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <div>
+        <div class="brand"><span class="brand-mark">SQL</span><span>Text-to-SQL <b>CoE</b></span></div>
+        <p class="muted small">A friendly technical guide to letting people ask data questions in plain English. November 2026 · Faisal</p>
+      </div>
+      <div class="small muted">
+        <b>Sources.</b> NVIDIA Auto Ontology on GitHub (pipeline, stack and supported engines as described in its README). Benchmark names and technique descriptions come from general industry knowledge; real numbers will be confirmed with our own baseline run.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Technique detail drawer -->
+  <div class="drawer-bg" id="drawerBg" hidden></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <button class="icon-btn drawer-close" id="drawerClose" aria-label="Close">✕</button>
+    <div id="drawerBody"></div>
+  </aside>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
